@@ -40,7 +40,7 @@ Then launch Nits again.
 ## Building from source
 
 ```sh
-git clone https://github.com/<owner>/Nits.git
+git clone https://github.com/shubhamsinghshubham777/Nits.git
 cd Nits
 open Nits.xcodeproj
 ```
