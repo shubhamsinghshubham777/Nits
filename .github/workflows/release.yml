@@ -1,0 +1,84 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: macos-26
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Select Xcode 26.4.1
+        run: sudo xcode-select -s /Applications/Xcode_26.4.1.app/Contents/Developer
+
+      - name: Extract version from tag
+        id: version
+        run: |
+          TAG="${GITHUB_REF_NAME}"
+          VERSION="${TAG#v}"
+          if ! [[ "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+([.-].+)?$ ]]; then
+            echo "::error::Tag '$TAG' is not in expected vX.Y.Z form" >&2
+            exit 1
+          fi
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "dmg_name=Nits-$VERSION-arm64.dmg" >> "$GITHUB_OUTPUT"
+
+      - name: Build Nits.app (arm64, ad-hoc signed)
+        run: |
+          xcodebuild \
+            -project Nits.xcodeproj \
+            -scheme Nits \
+            -configuration Release \
+            -destination 'generic/platform=macOS' \
+            -derivedDataPath build \
+            ARCHS=arm64 \
+            ONLY_ACTIVE_ARCH=NO \
+            CODE_SIGN_STYLE=Manual \
+            CODE_SIGN_IDENTITY=- \
+            DEVELOPMENT_TEAM= \
+            MARKETING_VERSION=${{ steps.version.outputs.version }} \
+            CURRENT_PROJECT_VERSION=${{ github.run_number }} \
+            clean build
+
+      - name: Stage DMG contents
+        run: |
+          mkdir -p dmg-stage
+          cp -R build/Build/Products/Release/Nits.app dmg-stage/Nits.app
+
+      - name: Install create-dmg
+        run: brew install create-dmg
+
+      - name: Build DMG
+        run: |
+          set -e
+          build_dmg() {
+            create-dmg \
+              --volname "Nits ${{ steps.version.outputs.version }}" \
+              --window-size 540 380 \
+              --icon-size 100 \
+              --icon "Nits.app" 140 190 \
+              --hide-extension "Nits.app" \
+              --app-drop-link 400 190 \
+              --no-internet-enable \
+              "${{ steps.version.outputs.dmg_name }}" \
+              "dmg-stage/"
+          }
+          # create-dmg drives Finder via AppleScript for window layout and
+          # occasionally flakes on headless runners — one retry is the
+          # standard workaround.
+          build_dmg || build_dmg
+
+      - name: Create draft GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          draft: true
+          name: Nits ${{ steps.version.outputs.version }}
+          tag_name: ${{ github.ref_name }}
+          generate_release_notes: true
+          files: ${{ steps.version.outputs.dmg_name }}
