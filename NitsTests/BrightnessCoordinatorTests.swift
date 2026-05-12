@@ -51,7 +51,7 @@ struct BrightnessCoordinatorTests {
     }
 
     // 13
-    @Test func manualChangeWhileManagedFocusedUpdatesPresetAndBaseline() {
+    @Test func manualChangeWhileManagedFocusedUpdatesPresetButNotBaseline() {
         let (coord, store, _, clock) = makeSystem(
             initialBrightness: 0.5,
             presets: [AppPreset(bundleID: "vscode", brightness: 0.15)],
@@ -63,7 +63,7 @@ struct BrightnessCoordinatorTests {
         coord.handleObservedBrightness(0.65, on: displayA)
 
         #expect(store.preset(for: "vscode")?.brightness == 0.65)
-        #expect(coord.manualBaseline == 0.65)
+        #expect(coord.manualBaseline == 0.5)
     }
 
     // 14
