@@ -1,6 +1,10 @@
 # 🔆 Nits
 
-A menu-bar app for macOS that sets your display brightness automatically based on which app is in focus. Define a brightness preset per app, switch apps, and Nits smoothly transitions the screen to the right level.
+A no-nonsense menu-bar app for macOS that sets your display brightness automatically based on which app is in focus. Define a brightness preset per app, switch apps, and Nits smoothly transitions the screen to the right level.
+
+## Preview
+
+https://github.com/user-attachments/assets/6864fb80-5e87-40bb-9bfd-0ccafc03afdf
 
 ## Requirements
 
