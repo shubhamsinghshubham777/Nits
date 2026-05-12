@@ -4,7 +4,7 @@ A menu-bar app for macOS that sets your display brightness automatically based o
 
 ## Requirements
 
-- macOS 26.4 or newer
+- macOS 14.0 (Sonoma) or newer
 - Apple Silicon (arm64) Mac
 
 ## Installation
