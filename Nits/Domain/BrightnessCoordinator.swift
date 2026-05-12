@@ -95,6 +95,17 @@ final class BrightnessCoordinator {
         }
     }
 
+    var currentCommandedValue: Double {
+        currentValue()
+    }
+
+    func reapplyFocus() {
+        guard let focus = currentFocus else { return }
+        let target = store.preset(for: focus.bundleID)?.brightness ?? manualBaseline
+        let from = currentValue()
+        beginTransition(from: from, to: target, displayID: focus.displayID)
+    }
+
     private func currentValue() -> Double {
         if let t = transition { return t.lastEmittedValue }
         return lastCommandedValue ?? manualBaseline

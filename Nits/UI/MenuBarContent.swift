@@ -13,6 +13,7 @@ struct MenuBarContent: View {
 
             if let focus = service.coordinator.currentFocus {
                 focusedAppRow(bundleID: focus.bundleID)
+                toggleManagedButton(bundleID: focus.bundleID).padding(.top, 4)
                 Divider().padding(.vertical, 4)
             }
 
@@ -26,6 +27,7 @@ struct MenuBarContent: View {
                 openSettings()
             }
             .keyboardShortcut(",")
+            .padding(.top, 4)
 
             Divider().padding(.vertical, 4)
 
@@ -61,6 +63,15 @@ struct MenuBarContent: View {
         guard service.coordinator.isEnabled else { return "Paused" }
         if service.coordinator.isTransitioning { return "Transitioning…" }
         return "Active"
+    }
+
+    private func toggleManagedButton(bundleID: String) -> some View {
+        let isManaged = service.store.preset(for: bundleID) != nil
+        let name = InstalledAppsScanner.appName(forBundleID: bundleID)
+        return Button(isManaged ? "Remove Preset for \(name)" : "Add Preset for \(name)") {
+            service.toggleManaged(bundleID: bundleID, displayName: name)
+        }
+        .keyboardShortcut("t")
     }
 
     private func focusedAppRow(bundleID: String) -> some View {

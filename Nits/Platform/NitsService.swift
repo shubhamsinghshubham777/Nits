@@ -100,4 +100,20 @@ final class NitsService {
         coordinator.setEnabled(enabled)
     }
 
+    @discardableResult
+    func toggleManaged(bundleID: String, displayName: String) -> Bool {
+        if store.preset(for: bundleID) != nil {
+            store.remove(bundleID: bundleID)
+            if coordinator.currentFocus?.bundleID == bundleID {
+                coordinator.reapplyFocus()
+            }
+            return false
+        } else {
+            let brightness = coordinator.currentCommandedValue
+            store.upsert(AppPreset(bundleID: bundleID,
+                                   brightness: brightness,
+                                   displayName: displayName))
+            return true
+        }
+    }
 }
