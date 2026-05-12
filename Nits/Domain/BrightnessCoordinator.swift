@@ -69,10 +69,11 @@ final class BrightnessCoordinator {
         }
         guard abs(clamped - last) > 0.005 else { return }
 
-        manualBaseline = clamped
         lastCommandedValue = clamped
         if let focus = currentFocus, store.preset(for: focus.bundleID) != nil {
             store.updateBrightness(clamped, for: focus.bundleID)
+        } else {
+            manualBaseline = clamped
         }
     }
 
